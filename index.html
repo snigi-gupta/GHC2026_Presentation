@@ -1,0 +1,1626 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GHC 10371 — Career Pivot in the Age of AI</title>
+
+<style>
+/* ============================================================
+   GHC 2026 · Session 10371 · Anaheim Convention Center
+   ------------------------------------------------------------
+   PROJECTION BUDGET — every size below derives from this.
+   ACC breakout rooms: 12–16 ft screen, house lights UP, assume a
+   tired bulb. Slide height = 56.25cqw. Working rules:
+     · HARD FLOOR      1.5cqw  (2.7% of slide height)
+     · MUST-READ TEXT  1.9cqw+
+     · SECONDARY TEXT  >= 7:1 contrast. Never a light grey.
+     · TIGHT TRACKING on small text.
+     · NO forced <br> that strands white space.
+
+   COPY RULES (author-set)
+     · No em dashes or en dashes anywhere in slide copy. Use commas,
+       colons, periods, or slashes. Hyphens in compound adjectives
+       ("six-figure") are correct grammar and stay.
+     · The red eyebrow above each title IS the slide header. On a
+       multi-slide section it carries the SECTION name (e.g. "Should
+       you pivot?") so the room always knows where it is. One-pager
+       slides carry their own topic instead. No footers.
+   ============================================================ */
+
+:root{
+  --paper:#F4F3EF;
+  --panel:#EAE8E2;
+  --ink:#17181B;
+  --ink-2:#4A4C51;
+  --rule:#C9C6BE;
+  --accent:#8E2438;
+
+  --display:"Avenir Next","Avenir",-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#0C0C0E}
+body{display:grid;place-items:center;font-family:var(--display);color:var(--ink);
+     -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+
+.stage{
+  position:relative;
+  width:min(100vw,177.78vh);
+  height:min(100vh,56.25vw);
+  background:var(--paper);
+  container-type:inline-size;
+  overflow:hidden;
+}
+.slide{position:absolute;inset:0;z-index:1;padding:4.6cqw 6cqw 6.4cqw;
+       display:none;flex-direction:column}
+.slide.on{display:flex}
+
+/* ---------- slide number, bottom right. Hidden on the title slide. ---------- */
+
+#pgnum{position:absolute;right:6cqw;bottom:2.3cqw;z-index:6;
+  font-family:var(--mono);font-size:1.5cqw;font-weight:600;letter-spacing:.1em;
+  color:var(--ink-2);font-variant-numeric:tabular-nums;pointer-events:none}
+#pgnum.hide{display:none}
+body.on-dark #pgnum{color:#B9B6B0}
+
+/* ---------- shared type ---------- */
+
+.meta{font-family:var(--mono);font-size:1.5cqw;font-weight:400;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);
+  display:flex;align-items:center;gap:.9cqw;flex-wrap:wrap}
+.meta .sep{color:var(--rule)}
+.meta .pillar-tag{color:var(--accent);font-weight:500}
+
+.eyebrow{font-family:var(--mono);font-size:1.55cqw;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+
+hr{border:0;height:1px;background:var(--rule);width:100%}
+.hr-top{margin-top:1.5cqw}
+.hr-bot{margin-bottom:2.8cqw}
+.bar{height:.38cqw;width:15cqw;background:var(--accent)}
+
+h1{font-size:6.9cqw;font-weight:400;line-height:1.1;letter-spacing:-.021em}
+h1 .em{font-weight:600;color:var(--accent)}
+h2{font-size:3.9cqw;font-weight:600;line-height:1.12;letter-spacing:-.02em;margin-top:1.1cqw}
+h2 .em{color:var(--accent)}
+
+/* ---------- 01 title ---------- */
+
+.title-block{flex:1;display:flex;flex-direction:column;justify-content:center;padding:1cqw 0}
+.sub{margin-top:1.9cqw;font-size:1.7cqw;font-weight:600;letter-spacing:.18em;
+     text-transform:uppercase;color:var(--ink-2)}
+
+.speakers{display:grid;grid-template-columns:1fr 1px 1fr;gap:4.5cqw;align-items:stretch}
+.spk{display:flex;flex-direction:column;min-width:0}
+.spk.r{align-items:flex-end;text-align:right}
+.split{background:var(--rule)}
+.spk .name{font-size:2.7cqw;font-weight:600;letter-spacing:-.014em;line-height:1.12}
+.spk .role{font-size:2cqw;font-weight:500;color:var(--ink);line-height:1.55;margin-top:.7cqw}
+.role img.ic{display:inline-block;width:auto;height:2.6cqw;vertical-align:-0.58cqw;
+             margin-left:.45cqw}
+.role .co{font-weight:600}
+
+/* ---------- statement slides ---------- */
+
+.t-statement{justify-content:center}
+.statement{font-size:7.6cqw;font-weight:400;line-height:1.12;letter-spacing:-.024em}
+.statement.two{font-weight:600;color:var(--accent);margin-top:2.4cqw}
+/* Quote fills the space between title and coda so slide 7 has no dead
+   air at the bottom; the coda stays pinned above the bottom margin. */
+.quoteblock{flex:1;display:flex;flex-direction:column;justify-content:center}
+.quoteblock .statement{font-size:4.6cqw}
+.quoteblock .statement.two{margin-top:1.2cqw}
+.statement .plain{color:var(--ink);font-weight:400}
+
+.coda{font-size:2.4cqw;font-weight:500;color:var(--ink);line-height:1.4;
+      padding-top:2.4cqw;border-top:1px solid var(--rule);text-align:center}
+.coda b{color:var(--accent);font-weight:700}
+.eyebrow .sep{color:var(--ink-2);margin:0 .3cqw}
+
+/* ---------- 03 two pivots ---------- */
+
+.metrics{display:flex;gap:5cqw;margin-top:2.2cqw}
+.spk.r .metrics{justify-content:flex-end}
+.metric{display:flex;flex-direction:column}
+.metric .n{font-size:6cqw;font-weight:600;line-height:1;letter-spacing:-.03em;
+           font-variant-numeric:tabular-nums}
+.metric .l{font-size:1.75cqw;font-weight:500;color:var(--ink);margin-top:.85cqw;
+           line-height:1.3;white-space:nowrap}
+.shared{margin-top:auto;padding-top:2.4cqw;border-top:1px solid var(--rule)}
+.shared .lead{font-size:2.5cqw;font-weight:700;color:var(--accent);line-height:1.25}
+.shared .body{font-size:2.15cqw;font-weight:400;color:var(--ink);line-height:1.35;
+              margin-top:.9cqw}
+
+/* ---------- 04 agenda ---------- */
+
+.agenda{flex:1;display:flex;flex-direction:column;justify-content:center;gap:3.2cqw}
+.item{display:grid;grid-template-columns:5.5cqw 1fr;gap:2.6cqw;align-items:start}
+.item .ico{width:5cqw;height:5cqw;color:var(--accent)}
+.item .ico svg{width:100%;height:100%;display:block}
+.item .q{font-size:3.4cqw;font-weight:600;line-height:1.14;letter-spacing:-.016em}
+.item .a{font-size:2.05cqw;font-weight:400;color:var(--ink-2);margin-top:.6cqw;line-height:1.3}
+.item .a b{color:var(--accent);font-weight:700}
+
+/* ---------- 05 section divider ---------- */
+
+.t-divider{justify-content:center;background:var(--ink)}
+.t-divider .eyebrow{color:#D9A0AC}
+.t-divider h1{color:var(--paper);margin-top:2.4cqw}
+.t-divider .lede{font-size:2.6cqw;font-weight:400;color:#B9B6B0;margin-top:3cqw;line-height:1.35}
+.t-divider .lede b{color:var(--paper);font-weight:600}
+
+/* ---------- 06 conversations table ----------
+   Grid, not flow: every cell in a row stretches to the row height so
+   the rules land on one line across all three columns. */
+
+.tbl{margin-top:2cqw;display:grid;
+     grid-template-columns:1.15fr 13.5cqw 1.5fr;
+     column-gap:2.6cqw;align-items:stretch}
+.tbl .th{font-family:var(--mono);font-size:1.5cqw;font-weight:700;letter-spacing:.1em;
+         text-transform:uppercase;color:var(--ink-2);padding-bottom:1cqw;
+         border-bottom:1px solid var(--ink);line-height:1.3}
+.tbl .c{padding:1.05cqw 0;border-bottom:1px solid var(--rule);line-height:1.32;
+        display:flex;align-items:flex-start}
+.tbl .who{font-size:1.85cqw;font-weight:600;color:var(--ink)}
+.tbl .n{font-size:2.5cqw;font-weight:700;color:var(--accent);
+        font-variant-numeric:tabular-nums;line-height:1.1}
+.tbl .ins{font-size:1.7cqw;font-weight:400;color:var(--ink-2)}
+.tbl .c.col{flex-direction:column;align-items:flex-start;gap:.7cqw}
+/* Small identifier, not a badge. 1.5cqw is the projection floor, so the
+   pill reads small by keeping the word short and the padding tight. */
+.pill{display:inline-block;font-family:var(--mono);font-size:1.5cqw;font-weight:700;
+      letter-spacing:.08em;text-transform:uppercase;color:var(--paper);
+      background:var(--accent);padding:.15cqw .7cqw;border-radius:2cqw;line-height:1.35}
+
+/* Sized to stay on one line and still clear the slide number. */
+.caveat{margin-top:auto;padding:2cqw 4cqw 0;font-size:1.62cqw;font-weight:400;
+        color:var(--ink);line-height:1.35;text-align:center}
+.caveat b{color:var(--accent);font-weight:700}
+
+/* ---------- 08 four pillars ----------
+   Vertical columns, not a 2x2 grid: four things bearing load reads as
+   pillars, and it breaks the horizontal rhythm of the slides before it.
+   Icon and title centre in each column; the cost band below shares the
+   same four-column track so every cost sits under its own pillar. */
+
+.pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:2.2cqw;
+         margin-top:2.4cqw;align-items:stretch}
+.pillar{display:flex;flex-direction:column;align-items:center;text-align:center;
+        background:var(--panel);border-top:.45cqw solid var(--accent);
+        padding:1.9cqw 1.5cqw 1.8cqw}
+.pillar .ico{width:3.5cqw;height:3.5cqw;color:var(--accent);margin-bottom:1.3cqw}
+.pillar .ico svg{width:100%;height:100%;display:block}
+.pillar .k{font-family:var(--mono);font-size:1.5cqw;font-weight:700;letter-spacing:.12em;
+           text-transform:uppercase;color:var(--accent);margin-bottom:.9cqw}
+.pillar .v{font-size:1.65cqw;font-weight:400;line-height:1.32;color:var(--ink)}
+
+/* One label for all four, left aligned outside the pillars. */
+.ourcost{margin-top:auto;padding-top:2cqw}
+.ourcost .lbl{font-family:var(--mono);font-size:1.55cqw;font-weight:700;letter-spacing:.14em;
+              text-transform:uppercase;color:var(--accent);margin-bottom:1.1cqw}
+.costrow{display:grid;grid-template-columns:repeat(4,1fr);gap:2.2cqw}
+.costrow div{padding:0 1.5cqw;text-align:center;font-size:1.75cqw;font-weight:600;
+             line-height:1.3;color:var(--ink)}
+
+/* ---------- 09 decision flowchart ----------
+   A real chart, not a numbered list: decision nodes down a spine, YES
+   flows down, NO branches right to a terminal. Mirrors the worksheet
+   exactly so the room can follow on paper. Every NO routes somewhere
+   real, so nobody is ever told to give up. */
+
+.chart{flex:1;display:flex;flex-direction:column;justify-content:center;margin-top:1.4cqw}
+.frow{display:grid;grid-template-columns:1.25fr 7cqw 1fr;align-items:center}
+
+.node{border:1.5px solid var(--ink);padding:1.2cqw 1.6cqw;font-size:1.85cqw;
+      font-weight:600;line-height:1.25;letter-spacing:-.008em}
+
+/* NO branch: a ruled arm with the label sitting on it, arrowhead right */
+.arm{position:relative;display:flex;align-items:center;justify-content:center;height:100%}
+.arm::before{content:"";position:absolute;left:0;right:.7cqw;top:50%;
+             height:1.5px;background:var(--accent)}
+.arm::after{content:"";position:absolute;right:0;top:50%;transform:translateY(-50%);
+            border-left:.75cqw solid var(--accent);
+            border-top:.5cqw solid transparent;border-bottom:.5cqw solid transparent}
+.arm span{position:relative;background:var(--paper);padding:0 .5cqw;
+          font-family:var(--mono);font-size:1.5cqw;font-weight:700;letter-spacing:.08em;
+          text-transform:uppercase;color:var(--accent)}
+
+.out{border:1.5px dashed var(--accent);color:var(--accent);padding:1cqw 1.4cqw;
+     font-size:1.6cqw;font-weight:600;line-height:1.28}
+
+/* YES connector: vertical stem down the spine, label beside it */
+.link{display:grid;grid-template-columns:1.25fr 7cqw 1fr}
+.link .stem{grid-column:1;justify-self:center;position:relative;height:2.8cqw;
+            display:flex;flex-direction:column;align-items:center}
+.link .stem i{flex:1;width:1.5px;background:var(--ink)}
+.link .stem .tip{width:0;height:0;border-left:.5cqw solid transparent;
+                 border-right:.5cqw solid transparent;border-top:.7cqw solid var(--ink)}
+.link .stem span{position:absolute;left:1.2cqw;top:50%;transform:translateY(-50%);
+                 white-space:nowrap;font-family:var(--mono);font-size:1.5cqw;font-weight:700;
+                 letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+
+.final{background:var(--accent);color:var(--paper);padding:1.6cqw 2cqw;
+       display:flex;align-items:baseline;gap:1.4cqw}
+.final .tick{font-size:2.2cqw;font-weight:700;flex:none}
+.final .ft{font-size:2.05cqw;font-weight:600;line-height:1.3}
+.final .ft b{font-weight:600;opacity:.85;display:block;font-size:1.75cqw;margin-top:.4cqw}
+
+/* ---------- 10 the bridge ---------- */
+
+.subhead{font-size:2.4cqw;font-weight:400;color:var(--ink-2);line-height:1.35;
+         margin-top:1.5cqw}
+
+.routes{flex:1;display:flex;flex-direction:column;justify-content:center;gap:2.6cqw;
+        margin-top:1.5cqw}
+.route{display:grid;grid-template-columns:15cqw 1fr;gap:3cqw;align-items:baseline;
+       padding-bottom:2.4cqw;border-bottom:1px solid var(--rule)}
+.route:last-child{border-bottom:0;padding-bottom:0}
+.route .rk{font-family:var(--mono);font-size:1.75cqw;font-weight:700;letter-spacing:.12em;
+           text-transform:uppercase;color:var(--accent)}
+.route .rv{font-size:2.3cqw;font-weight:500;line-height:1.3;color:var(--ink)}
+.route .rv i{font-style:normal;color:var(--ink-2);font-weight:400}
+
+/* ---------- 12 challenge ---------- */
+
+/* Challenge slides. Claim on the left, traps stacked on the right, so
+   the full canvas is used and nothing pools at the bottom. Each trap
+   is its own grid row, which makes the icon / label / body line up
+   across all three without any min-height hacks. */
+/* Wider left column so the claim wraps to two lines instead of five,
+   and the traps spread across the full height so nothing pools at the
+   bottom. Numeral runs inline with the label: stacking it under the
+   icon left it orphaned between rows. */
+.cbody{flex:1;display:grid;grid-template-columns:1fr 1.3fr;gap:4.6cqw;
+       align-items:stretch;margin-top:2.2cqw}
+.claim{align-self:center;font-size:3.2cqw;font-weight:600;line-height:1.26;
+       letter-spacing:-.012em;border-left:.34cqw solid var(--accent);padding-left:2.4cqw}
+.claim b{color:var(--accent);font-weight:600}
+.claimsub{font-size:1.85cqw;font-weight:400;color:var(--ink-2);line-height:1.36;
+          margin-top:1.8cqw}
+
+.traps{display:flex;flex-direction:column;justify-content:space-between}
+.trap{display:grid;grid-template-columns:4.2cqw 1fr;gap:2.2cqw;align-items:start;
+      padding-bottom:2.4cqw;border-bottom:1px solid var(--rule)}
+.trap:last-child{border-bottom:0;padding-bottom:0}
+.trap .ico{width:4.2cqw;height:4.2cqw;color:var(--accent);margin-top:.15cqw}
+.trap .ico svg{width:100%;height:100%;display:block}
+.trap .tn{font-family:var(--mono);font-size:1.6cqw;font-weight:700;color:var(--accent);
+          margin-right:1cqw}
+.trap .tk{font-size:2.1cqw;font-weight:700;line-height:1.24;color:var(--ink)}
+.trap .tv{font-size:1.75cqw;font-weight:400;line-height:1.32;color:var(--ink-2);
+          margin-top:.55cqw}
+
+/* ---------- 13 the translation ---------- */
+
+/* Subgrid keeps both columns on identical rows, so the two "before"
+   boxes and the two "after" boxes are the same height even though the
+   copy differs in length. */
+/* Rows are auto, not 1fr: fr rows stretched the boxes past their content
+   and pushed the last band under the slide number. */
+.trans{flex:1;display:grid;grid-template-columns:1fr 1fr;
+       grid-template-rows:auto auto auto auto;gap:1.2cqw 4cqw;
+       align-content:center;margin-top:2cqw}
+.tcol{display:grid;grid-row:span 4;grid-template-rows:subgrid;gap:1.2cqw}
+.tcol .who{font-family:var(--mono);font-size:1.55cqw;font-weight:700;letter-spacing:.14em;
+           text-transform:uppercase;color:var(--accent);padding-bottom:.4cqw;
+           border-bottom:1px solid var(--rule)}
+.band{padding:1.5cqw 1.8cqw;border:1.5px solid var(--rule)}
+.band .bk{font-family:var(--mono);font-size:1.5cqw;font-weight:700;letter-spacing:.12em;
+          text-transform:uppercase;color:var(--ink-2);margin-bottom:.8cqw}
+.band .bv{font-size:1.7cqw;font-weight:400;line-height:1.34;color:var(--ink-2)}
+.band.win{border-color:var(--accent);background:var(--panel)}
+.band.win .bk{color:var(--accent)}
+.band.win .bv{font-size:1.95cqw;font-weight:600;color:var(--ink)}
+.turn{display:flex;align-items:center;gap:1.1cqw;padding-left:1.8cqw}
+.turn .ar{font-size:2.2cqw;font-weight:700;color:var(--accent);line-height:1}
+.turn span{font-size:1.55cqw;font-weight:500;color:var(--ink-2)}
+
+/* ---------- 15 diagnosis cards ----------
+   Cards stretch to the full body height so the slide has no dead space,
+   with the fix pinned to the bottom of each so all three line up. */
+
+.fixbody{flex:1;display:flex;margin-top:2.2cqw;padding-bottom:1cqw}
+.cards{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:2.4cqw;
+       align-items:stretch}
+.card{border:1.5px solid var(--rule);padding:2.4cqw 2.2cqw 2.2cqw;
+      display:flex;flex-direction:column}
+.card .ico{width:4.2cqw;height:4.2cqw;color:var(--accent);margin-bottom:1.6cqw}
+.card .ico svg{width:100%;height:100%;display:block}
+.card .ck{font-size:3.2cqw;font-weight:700;letter-spacing:-.016em;color:var(--ink)}
+.card .cm{font-size:1.95cqw;font-weight:400;color:var(--ink-2);line-height:1.32;
+          margin-top:1cqw}
+.card .cf{margin-top:auto;padding-top:1.8cqw;border-top:1px solid var(--rule);
+          font-size:2.1cqw;font-weight:700;color:var(--accent);line-height:1.28}
+
+/* ---------- 16 the build staircase ----------
+   All three bars are the same accent on purpose: every outcome is a win.
+   Height alone carries the progression. */
+
+.stairs{display:grid;grid-template-columns:repeat(3,1fr);gap:2.4cqw;align-items:end;
+        flex:1;min-height:0;margin-top:2.2cqw}
+.stair{background:var(--accent);color:var(--paper);padding:1.7cqw 1.8cqw 1.5cqw;
+       display:flex;flex-direction:column}
+.stair.s1{height:48%}
+.stair.s2{height:74%}
+.stair.s3{height:100%}
+.stair .sk{font-size:2.5cqw;font-weight:700;line-height:1.15;letter-spacing:-.012em}
+.stair .sv{margin-top:auto;font-size:1.8cqw;font-weight:400;line-height:1.3;opacity:.9}
+.mindset{padding-top:2.4cqw;text-align:center;font-family:var(--mono);
+         font-size:2.6cqw;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+         color:var(--accent)}
+
+/* ---------- 17 visibility ---------- */
+
+.povs{display:grid;grid-template-columns:1fr 1fr;gap:3cqw;margin-top:2.2cqw}
+.pov{border:1.5px solid var(--rule);padding:1.9cqw 2.1cqw;display:flex;gap:2cqw}
+.pov .fig{width:6cqw;height:6cqw;flex:none;color:var(--accent)}
+.pov .fig svg{width:100%;height:100%;display:block}
+.pov .pk{font-size:2.4cqw;font-weight:700;letter-spacing:-.012em;color:var(--ink);
+         margin-bottom:.9cqw}
+.pov ul{list-style:none;display:flex;flex-direction:column;gap:.6cqw}
+.pov li{font-size:1.7cqw;font-weight:400;line-height:1.3;color:var(--ink-2);
+        padding-left:1.6cqw;position:relative}
+.pov li::before{content:"";position:absolute;left:0;top:.62em;width:.8cqw;height:1.5px;
+                background:var(--accent)}
+
+.vcards{margin-top:auto;padding-top:2.4cqw;border-top:1px solid var(--rule);
+        display:grid;grid-template-columns:repeat(4,1fr);gap:2.4cqw}
+.vcard .vk{font-size:1.95cqw;font-weight:700;line-height:1.24;color:var(--accent)}
+.vcard .vv{font-size:1.7cqw;font-weight:400;line-height:1.3;color:var(--ink);margin-top:.7cqw}
+
+/* ---------- 19 the BRICK wall ----------
+   Real masonry: mortar bed behind, running bond via a half brick that
+   alternates ends, a bevel on every brick, and slight tonal variation
+   course to course so it does not read as five flat rectangles. */
+
+.wall{flex:1;display:flex;flex-direction:column;gap:.5cqw;margin-top:2.2cqw;
+      background:#CFC7BA;padding:.8cqw;min-height:0}
+.course{display:flex;gap:.5cqw;flex:1;min-height:0}
+.brick,.stub{
+  background-image:linear-gradient(180deg,rgba(255,255,255,.08),rgba(0,0,0,.14));
+  border-radius:.22cqw;
+  box-shadow:inset 0 .16cqw 0 rgba(255,255,255,.20),
+             inset 0 -.16cqw 0 rgba(0,0,0,.28),
+             inset .14cqw 0 0 rgba(255,255,255,.08);
+}
+.stub{width:7cqw;flex:none}
+.brick{flex:1;display:grid;grid-template-columns:5.6cqw 23cqw 1fr;align-items:center;
+       gap:1.8cqw;padding:0 2.2cqw;color:var(--paper);min-width:0}
+.brick .bl{font-size:3.4cqw;font-weight:700;line-height:1;letter-spacing:-.02em}
+.brick .bn{font-size:2.15cqw;font-weight:700;line-height:1.16;letter-spacing:-.01em}
+.brick .bd{font-size:1.75cqw;font-weight:400;line-height:1.24;opacity:.9}
+
+/* ---------- step reveal ---------- */
+
+.step{opacity:0;transform:translateY(1.2cqw);
+      transition:opacity .38s ease,transform .38s cubic-bezier(.2,.7,.3,1)}
+.step.in{opacity:1;transform:none}
+
+/* ---------- presenter notes / overview / help ---------- */
+
+.notes{display:none}
+#np{position:fixed;left:0;right:0;bottom:0;z-index:30;max-height:44vh;overflow-y:auto;
+    background:#141315;border-top:2px solid var(--accent);padding:18px 26px 24px;
+    font-family:var(--mono);font-size:13px;line-height:1.72;color:#EDEBE6;
+    white-space:pre-wrap;display:none}
+#np.on{display:block}
+#np h4{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#D9A0AC;margin-bottom:10px}
+
+#grid{position:fixed;inset:0;z-index:40;background:#0C0C0E;overflow-y:auto;display:none;
+      grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;padding:24px}
+#grid.on{display:grid}
+#grid button{aspect-ratio:16/9;background:var(--paper);border:1px solid var(--rule);color:var(--ink);
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  text-align:left;padding:14px;cursor:pointer;display:flex;flex-direction:column;
+  justify-content:space-between;line-height:1.4}
+#grid button:hover,#grid button:focus-visible{border-color:var(--accent);outline:none}
+#grid button b{font-family:var(--display);font-size:15px;font-weight:600;letter-spacing:0;
+               text-transform:none}
+
+#help{position:fixed;top:14px;right:14px;z-index:45;font-family:var(--mono);
+  font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#A9A6A0;
+  background:#141315;border:1px solid #33312E;padding:9px 13px;line-height:1.95}
+#help b{color:#D9A0AC;font-weight:400}
+#help.hide{display:none}
+
+/* Browser zoom is a no-op here: the stage is sized in viewport units, so
+   zooming out enlarges the viewport and the slide scales up to match. */
+body.dist .stage{transform:scale(.3);outline:1px solid #2E2E32}
+#distlabel{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:46;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:#A9A6A0;display:none}
+body.dist #distlabel{display:block}
+
+@media (prefers-reduced-motion:reduce){.step{transition:none;transform:none}}
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+
+  <!-- ═══ 01 · TITLE ═══════════════════════════════════════ -->
+  <section class="slide on" data-label="Title">
+    <div class="meta">
+      <span>Grace Hopper Celebration 2026</span><span class="sep">/</span>
+      <span>Session 10371</span><span class="sep">/</span>
+      <span class="pillar-tag">Pillar: Hire</span>
+    </div>
+    <hr class="hr-top">
+
+    <div class="title-block">
+      <h1>How to Do a <span class="em">Successful</span><br><span class="em">Career Pivot</span> in the Age of AI</h1>
+      <div class="bar" style="margin-top:2.8cqw"></div>
+      <div class="sub">A Practical Framework</div>
+    </div>
+
+    <hr class="hr-bot">
+    <div class="speakers">
+      <div class="spk">
+        <div class="name">Pooja Yogeshwaran</div>
+        <div class="role">Product Manager,<img class="ic" src="assets/paypal_icon.png" alt="PayPal"
+             onerror="this.outerHTML='&lt;span class=co&gt; PayPal&lt;/span&gt;'"></div>
+      </div>
+      <div class="split"></div>
+      <div class="spk r">
+        <div class="name">Snigdha Gupta</div>
+        <div class="role">Product Manager,<img class="ic" src="assets/uber_icon.png" alt="Uber"
+             onerror="this.outerHTML='&lt;span class=co&gt; Uber&lt;/span&gt;'"></div>
+      </div>
+    </div>
+
+    <div class="notes">TITLE · up during walk-in
+
+Leave this on screen as the room fills. People are matching the
+session number in their app to the room they are in.
+
+RUN OF SHOW
+   0:00 to 15:00   Pooja
+  15:00 to 30:00   Snigdha
+  30:00 to 36:00   Worksheet, both on stage
+  36:00 to 41:00   Q&A
+  41:00 to 45:00   BUFFER. Protect it.
+
+Decide before you walk on: who owns the clock.</div>
+  </section>
+
+
+  <!-- ═══ 02 · THE HOOK ════════════════════════════════════ -->
+  <section class="slide t-statement" data-label="The hook">
+    <div class="statement step">You are not starting over.</div>
+    <div class="statement two step">You are starting with experience.</div>
+
+    <div class="notes">POOJA · ~60 sec · 0:00   ★ THE HOOK
+
+DO THIS BEFORE YOU ADVANCE. The slide is blank on purpose.
+
+  "Raise your hand if you are thinking about a career pivot right now."
+  [ wait. let them go up. ]
+  "Keep your hand up if someone has told you, or you believe, that
+   you would be starting over."
+
+Let the hands sit. Look at them. Name what you see:
+  "Look around. Almost every hand is still up."
+
+THEN click. One line at a time.
+  CLICK 1 → "You are not starting over."   Pause. Do not rescue yet.
+  CLICK 2 → "You are starting with experience."
+
+  "You can put your hands down. Now let us show you what that
+   experience is actually worth."
+
+★ Count to three between clicks. The silence makes the second line
+land. This returns as the final slide.</div>
+  </section>
+
+
+  <!-- ═══ 03 · TWO PIVOTS ══════════════════════════════════ -->
+  <section class="slide" data-label="Two pivots">
+    <div class="eyebrow">Two Pivots, One Market</div>
+    <h2>Software Engineer <span class="em">→</span> Product</h2>
+    <hr style="margin-top:2.4cqw">
+
+    <div class="speakers" style="margin-top:2.6cqw">
+      <div class="spk">
+        <div class="name">Pooja Yogeshwaran</div>
+        <div class="metrics">
+          <div class="metric"><span class="n">9</span><span class="l">Months to pivot</span></div>
+          <div class="metric"><span class="n">25</span><span class="l">Company interviews</span></div>
+        </div>
+      </div>
+      <div class="split"></div>
+      <div class="spk r">
+        <div class="name">Snigdha Gupta</div>
+        <div class="metrics">
+          <div class="metric"><span class="n">10</span><span class="l">Months to pivot</span></div>
+          <div class="metric"><span class="n">30</span><span class="l">Company interviews</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="shared">
+      <div class="lead">Before your first application for your pivot role:</div>
+      <div class="body">Add 6 to 12 months to your journey to educate, upskill, and train yourself.</div>
+    </div>
+
+    <div class="notes">BOTH · ~4 min · 1:00
+
+POOJA FIRST, then SNIGDHA. Same four beats each so the parallel lands:
+  · the moment I decided
+  · the thing that almost stopped me
+  · THE LOWEST POINT      ← do not skip this one
+  · what actually worked
+
+★ THE NUMBERS ARE THE SLIDE. Do not narrate them. Let them sit while
+you tell the story behind them. 25 and 30 interviews is the number
+nobody says out loud, and it is why this room will trust you.
+
+The two sets are close on purpose. Say that:
+  "Two of us. Different companies, different years. Almost the same
+   road. This is what it takes."
+
+★ THE BOTTOM LINE IS THE REAL LESSON. Do not skip past it.
+  "Every number here starts the day we sent the first application.
+   None of them counts the six to twelve months before that. You do
+   not apply and then get ready. You get ready, and then you apply."
+
+Most of this room is about to start applying too early. That is the
+sentence that stops them.</div>
+  </section>
+
+
+  <!-- ═══ 04 · AGENDA ══════════════════════════════════════ -->
+  <section class="slide" data-label="Agenda">
+    <div class="eyebrow">The next forty minutes</div>
+
+    <div class="agenda">
+      <div class="item step">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+             <path d="M3 21 L11 13"/><path d="M11 13 L21 4"/><path d="M11 13 L21 20"/>
+             <path d="M21 4 L15.8 4.4"/><path d="M21 4 L20.6 9.2"/></svg></div>
+        <div>
+          <div class="q">Should you pivot?</div>
+          <div class="a">And what it will actually cost.</div>
+        </div>
+      </div>
+
+      <div class="item step">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+             <path d="M2 6 C7.5 6 7 19 12 19 C17 19 16.5 6 22 6"/></svg></div>
+        <div>
+          <div class="q">What will it feel like?</div>
+          <div class="a">And how to survive it.</div>
+        </div>
+      </div>
+
+      <div class="item step">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linejoin="round">
+             <rect x="3" y="15.6" width="18" height="5" rx=".7"/>
+             <rect x="3" y="9.5" width="18" height="5" rx=".7"/>
+             <rect x="3" y="3.4" width="18" height="5" rx=".7"/></svg></div>
+        <div>
+          <div class="q">How do you build credibility for your pivot role?</div>
+          <div class="a">The <b>BRICK</b> framework.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">POOJA · ~45 sec · 5:00
+
+Three clicks, one per line. Say each question as it lands, then move.
+Do NOT explain the answers here. This is a map, not the journey.
+
+  1. "First: should you even do this? And what will it cost you.
+      We are going to be specific about that."
+  2. "Second: what it actually feels like. Nobody tells you this part."
+  3. "Third: how you build credibility in a role you have never held.
+      That is BRICK, and that is what you will leave with."
+
+★ Land on item 3 and pause. That is the promise the room stays for.
+
+Also say the worksheet line here:
+  "At the end we will stop talking and work through this together.
+   Grab the worksheet now if you do not have it."</div>
+  </section>
+
+
+  <!-- ═══ 05 · SECTION DIVIDER ═════════════════════════════ -->
+  <section class="slide t-divider dark" data-label="Section">
+    <div class="eyebrow">Part One</div>
+    <h1>Should you pivot?</h1>
+    <div class="lede">Most advice starts at <b>“how.”</b> This starts at <b>“should.”</b></div>
+
+    <div class="notes">POOJA · ~15 sec · 6:00
+
+Say the second line out loud. It is the promise that separates this
+from every other pivot talk in the program, and it buys you enormous
+trust for the next twenty minutes.
+
+Frame the whole section as PERMISSION TO SAY NO.
+  "We are not here to talk you into this. We are here to make sure
+   that if you do it, you do it with your eyes open."</div>
+  </section>
+
+
+  <!-- ═══ 06 · FIVE CONVERSATIONS ══════════════════════════ -->
+  <section class="slide" data-label="Five conversations">
+    <div class="eyebrow">Should you pivot? <span class="sep">-</span> Do Your Due Diligence</div>
+    <h2>Five conversations before you commit</h2>
+
+    <div class="tbl">
+      <div class="th">Who to talk to</div>
+      <div class="th"># of conversations</div>
+      <div class="th">What to listen for</div>
+
+      <div class="c"><span class="who">Someone in the role now</span></div>
+      <div class="c"><span class="n">2</span></div>
+      <div class="c"><span class="ins">What a day/week/month actually looks like.</span></div>
+
+      <div class="c"><span class="who">Someone who hires for it</span></div>
+      <div class="c"><span class="n">1</span></div>
+      <div class="c"><span class="ins">Ask a hiring manager or director about the green/red flags they look for in a candidate.</span></div>
+
+      <div class="c"><span class="who">Someone who recently made the pivot</span></div>
+      <div class="c"><span class="n">1</span></div>
+      <div class="c"><span class="ins">Their lowest point, and whether the role is what they imagined or full of surprises.</span></div>
+
+      <div class="c col"><span class="pill">Bonus</span><span class="who">Someone who pivoted, then went back</span></div>
+      <div class="c"><span class="n">1</span></div>
+      <div class="c"><span class="ins">Why they went back, and what they did not like.</span></div>
+    </div>
+
+    <div class="caveat">
+      <b>Every pivot is different.</b> The experience varies with the person and the
+      career behind them.
+    </div>
+
+    <div class="notes">POOJA · ~4 min · 6:15
+
+The point of the table: due diligence is not reading job descriptions.
+It is five specific conversations, and each one has its own job.
+
+★ THE FOURTH ROW IS THE SLIDE. Say it plainly:
+  "Four of these are easy to get. The fifth is the one nobody has,
+   because nobody wants to call the person who quit. That is exactly
+   why you need them. Everyone else you talk to is a survivor, and
+   survivors are a biased sample."
+
+Give them the ask script. It is what unlocks the yes:
+  "Can I ask you three questions about your job? I am not asking
+   for a referral."
+
+★ THE CAVEAT MATTERS. Say it, do not let them read it alone:
+  "None of this is a formula. Two of us did this and had different
+   roads. What you are after is the pattern, not the recipe."
+
+→ then the dark side slide. Let it land cold.</div>
+  </section>
+
+
+  <!-- ═══ 07 · THE DARK SIDE ═══════════════════════════════ -->
+  <section class="slide" data-label="The dark side">
+    <div class="eyebrow">Should you pivot? <span class="sep">-</span> The Dark Side</div>
+    <h2>The dark side we found in our due diligence</h2>
+
+    <div class="quoteblock">
+      <div class="statement step">“PM is not the CEO. You don't own anything,</div>
+      <div class="statement two step"><span class="plain">but</span> you own the responsibility.”</div>
+    </div>
+
+    <div class="coda step">Every role has a dark side. The real question is not whether it exists.<br>
+      <b>It is whether you can deal with the dark side.</b></div>
+
+    <div class="notes">POOJA · ~90 sec · 10:15   ★ THE SEGUE
+
+This came OUT of our own due diligence. It is what we were told, not
+what we concluded. Say that first. It is what gives the line weight.
+
+  "We asked all five of those questions. This is the sentence that
+   came back, from more than one person."
+
+CLICK 1 → the setup. Let it sit.
+CLICK 2 → the turn. This is the whole job in one line.
+CLICK 3 → the coda. This is the actual lesson.
+
+Then generalise past PM so the non-PM pivoters stay with you:
+  "Every role has a dark side. Marketing has one. Design has one.
+   Engineering has one, and you already know what it is because you
+   have been living it. Job satisfaction is not finding a role with
+   no dark side. It is finding the one whose dark side you can carry."
+
+  "That was the sentence that made us stop and count the cost.
+   So let's count it."
+
+→ straight into the four pillars.</div>
+  </section>
+
+
+  <!-- ═══ 08 · FOUR PILLARS ════════════════════════════════ -->
+  <section class="slide" data-label="The real cost">
+    <div class="eyebrow">Should you pivot? <span class="sep">-</span> The Cost</div>
+    <h2>A pivot bills you on <span class="em">four accounts</span></h2>
+
+    <div class="pillars">
+      <div class="pillar step">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+             <ellipse cx="12" cy="5.5" rx="8" ry="2.8"/>
+             <path d="M4 5.5 v6 c0 1.5 3.6 2.8 8 2.8 s8 -1.3 8 -2.8 v-6"/>
+             <path d="M4 11.5 v6 c0 1.5 3.6 2.8 8 2.8 s8 -1.3 8 -2.8 v-6"/></svg></div>
+        <div class="k">Financial</div>
+        <div class="v">Income gaps, salary resets, the ROI of reskilling.</div>
+      </div>
+
+      <div class="pillar step">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+             <circle cx="8.5" cy="8" r="3.2"/>
+             <path d="M2.5 20.5 c0 -3.3 2.7 -6 6 -6 s6 2.7 6 6"/>
+             <circle cx="17.6" cy="9.8" r="2.4"/>
+             <path d="M15.6 14.6 c3 .5 5.4 3 5.4 5.9"/></svg></div>
+        <div class="k">Personal</div>
+        <div class="v">Family, partner, and the life balance you already built.</div>
+      </div>
+
+      <div class="pillar step">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+             <path d="M2 12.5 h4 l2.4 -6.5 3.9 13 3 -9 2.2 2.5 H22"/></svg></div>
+        <div class="k">Health</div>
+        <div class="v">Physical burnout, mental load, identity crisis.</div>
+      </div>
+
+      <div class="pillar step">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+             <path d="M7 2.5 v19"/><path d="M17 2.5 v19"/>
+             <path d="M7 7.5 h10"/><path d="M7 12 h10"/><path d="M7 16.5 h10"/></svg></div>
+        <div class="k">Career</div>
+        <div class="v">Seniority reset, credibility rebuilt from zero.</div>
+      </div>
+    </div>
+
+    <div class="ourcost step">
+      <div class="lbl">Our cost</div>
+      <div class="costrow">
+        <div>A loan to fund the specialization program.</div>
+        <div>A year living in a different city from my husband.</div>
+        <div>Sleep, fitness, and mental health all took the hit.</div>
+        <div>Left a comfortable big-tech job to take the chance.</div>
+      </div>
+    </div>
+
+    <div class="notes">BOTH · ~5 min · 11:45   ★ THE EMOTIONAL PEAK OF PART ONE
+
+Four clicks. Each click raises a whole pillar: the account AND our
+invoice for it. Talk both halves before you click the next.
+
+Most pivot advice covers Financial and stops. The other three are
+where people actually break, and nobody warns them.
+
+  FINANCIAL — everybody models this one and still underestimates it.
+  PERSONAL  — nobody models this one at all.
+  HEALTH    — say "identity crisis" out loud. Half this room is
+              already in one and thinks they are alone in it.
+  CAREER    — you reset seniority and rebuild credibility from zero,
+              in a room where you used to be the expert.
+
+★ ON THE CAREER PILLAR, say the full version. The slide is short on
+purpose so you get to deliver this:
+  "I was at a big tech company. Six figures. Stable. Everything you
+   are supposed to want. I left it, and I took the chance. That is
+   what the career account actually costs: you trade security for
+   a bet on yourself."
+
+⬛ CONFIRM WHO SAYS WHICH before you rehearse. Whoever owns a cost
+says that one, in first person:
+  Financial — the loan               → Pooja? Snigdha? both?
+  Personal  — the year apart         → SNIGDHA (says "my husband")
+  Health    — sleep / fitness / mind → both
+  Career    — left six-figure role   → who?
+
+⚠ The "my husband" line only works if SNIGDHA says it. If Pooja owns
+that pillar instead, the wording must change. Fix before final.
+
+★ Do not soften these, do not apologise, do not add a silver lining.
+State the cost, let it sit, move on. Recovery comes later, in BRICK.
+
+Optional closer:
+  "We would both do it again. But we would not do it by accident."</div>
+  </section>
+
+  <!-- ═══ 09 · THE DECISION ════════════════════════════════ -->
+  <section class="slide" data-label="The decision">
+    <div class="eyebrow">Should you pivot? <span class="sep">-</span> The Decision</div>
+    <h2>Your career pivot guide</h2>
+
+    <div class="chart">
+      <div class="step">
+        <div class="frow">
+          <div class="node">Have you done your due diligence?</div>
+          <div class="arm"><span>No</span></div>
+          <div class="out">Go and have the five conversations first.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="link"><div class="stem"><i></i><b class="tip"></b><span>Yes</span></div></div>
+        <div class="frow">
+          <div class="node">Do you know the dark side of the role, and accept it?</div>
+          <div class="arm"><span>No</span></div>
+          <div class="out">You do not need a pivot. You need a better opportunity where you already are.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="link"><div class="stem"><i></i><b class="tip"></b><span>Yes</span></div></div>
+        <div class="frow">
+          <div class="node">Can you absorb the cost across all four accounts for 6 to 12 months?</div>
+          <div class="arm"><span>No</span></div>
+          <div class="out">You need a bridge, not a pivot.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="link"><div class="stem"><i></i><b class="tip"></b><span>Yes</span></div></div>
+        <div class="final">
+          <span class="tick">✓</span>
+          <span class="ft">You are ready to begin your career pivot.
+            <b>Now build the credibility. Use the BRICK framework.</b></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">POOJA · ~4 min · 17:00   ★ INTERACTIVE. THIS IS ON THE WORKSHEET.
+
+Four clicks, and this is the one place in Part One where you STOP and
+let them write. Ask the gate, wait, then advance.
+
+  GATE 1 → "Have you done your due diligence? Mark yes or no on your
+            sheet. If it is a no, that is not a failure. That is your
+            next two weeks: five conversations."
+            [ pause. let pens move. ]
+
+  GATE 2 → "Do you know the dark side of this role, and can you accept
+            it? If no, hear this clearly: you may not need a pivot at
+            all. You may need a better opportunity where you already
+            are. That is a completely legitimate answer and it is
+            cheaper than everything we just described."
+            [ pause. ]
+
+  GATE 3 → "Can you carry the cost on all four accounts for six to
+            twelve months? If no, you need a bridge, not a pivot.
+            Internal move, adjacent role, or the same work under your
+            current title."
+            [ pause. ]
+
+  GATE 4 → "If you got here, you are ready. And the rest of this
+            session is about what to do next."
+
+★ EVERY NO ROUTES SOMEWHERE REAL. Say that out loud before gate 1:
+  "Nobody leaves this slide with a dead end. Every no on this chart
+   points at something you can actually do."
+
+★ Count the room at gate 3 if the energy is good:
+  "Hands up if you are still a yes at gate three." It gives you a
+  live read and it makes the next section land harder.
+
+⬛ THE WORKSHEET must print this flowchart exactly as it appears here,
+so they can follow along on paper.</div>
+  </section>
+
+  <!-- ═══ 10 · THE BRIDGE ══════════════════════════════════ -->
+  <section class="slide" data-label="The bridge">
+    <div class="eyebrow">Should you pivot? <span class="sep">-</span> The Bridge</div>
+    <h2>If you landed on the <span class="em">bridge</span>, here are your options</h2>
+    <div class="subhead">“I can't afford this right now” is not a no. It's a different route.</div>
+
+    <div class="routes">
+      <div class="route step">
+        <div class="rk">Internal</div>
+        <div class="rv">The same pivot at your current employer, where they already trust you.</div>
+      </div>
+      <div class="route step">
+        <div class="rk">Adjacent</div>
+        <div class="rv">One step over, not three. <i>Your role → the adjacent role → the target role.</i></div>
+      </div>
+      <div class="route step">
+        <div class="rk">Hybrid</div>
+        <div class="rv">Keep the title, take the work.</div>
+      </div>
+    </div>
+
+    <div class="notes">POOJA · ~2 min · 21:00
+
+THIS SLIDE IS FOR EVERYONE WHO CAME OUT OF GATE 3 AS A NO. Say that
+out loud so they know it is aimed at them:
+
+  "If you just found out you cannot carry the cost right now, this
+   slide is yours. You did not fail the chart. You got a different
+   answer, and it is a good one."
+
+Three clicks.
+
+  INTERNAL  — "The cheapest pivot in the world is the one where they
+               already trust you. Same company, new function. You skip
+               the credibility rebuild entirely."
+  ADJACENT  — "Do not jump three steps. Whatever you are pivoting into,
+               there is a role sitting between you and it that both
+               sides already believe you can do. Take that one first.
+               Two moves that each make sense on paper beat one move
+               nobody will approve."
+               [ Give ONE example from your own domain, then say
+                 "and the same shape works from marketing, from
+                  support, from design, from anywhere." ]
+  HYBRID    — "Keep your title. Take the work anyway. Own one product
+               decision in your current role and document it. That is
+               R in BRICK, and you can start it on Monday."
+
+★ Whichever of you took a bridge rather than a leap, say so here. It
+is the most reassuring thing in Part One and it costs 15 seconds.
+
+★ This is also the honest answer for most of the students in this
+room, who have the least financial cushion of anyone here.</div>
+  </section>
+
+
+  <!-- ═══ 11 · PART TWO DIVIDER ════════════════════════════ -->
+  <section class="slide t-divider dark" data-label="Section">
+    <div class="eyebrow">Part Two</div>
+    <h1>What will it feel like?</h1>
+    <div class="lede">Three challenges nobody warns you about.<br><b>And how to survive each one.</b></div>
+
+    <div class="notes">SNIGDHA · ~15 sec · 23:00
+
+You take the stage here.
+
+  "Pooja just told you whether you should. I am going to tell you
+   what it actually feels like once you have decided, because that
+   is the part nobody puts in a LinkedIn post."</div>
+  </section>
+
+
+  <!-- ═══ 12 · CHALLENGE 1 ═════════════════════════════════ -->
+  <section class="slide" data-label="Challenge 1">
+    <div class="eyebrow">What will it feel like? <span class="sep">-</span> Challenge 1</div>
+    <h2>Skills gap &amp; constant reskilling pressure</h2>
+    <div class="cbody">
+      <div class="claim">You have more experience than you think.<br><b>You just don't know how to sell it yet.</b>
+        <div class="claimsub">This is a language problem, not an experience problem.</div>
+      </div>
+
+      <div class="traps">
+        <div class="trap step">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 8 h14"/><path d="M13.5 4.5 L17 8 L13.5 11.5"/>
+              <path d="M21 16 H7"/><path d="M10.5 12.5 L7 16 L10.5 19.5"/></svg></span>
+          <div>
+            <div class="tk"><span class="tn">01</span>You can't reframe it.</div>
+            <div class="tv">It rarely maps 1:1, but it transfers. Learn the translation.</div>
+          </div>
+        </div>
+
+        <div class="trap step">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 18.5 a9 9 0 0 1 18 0"/><path d="M12 18.5 L7 11.5"/>
+              <circle cx="12" cy="18.5" r="1.1" fill="currentColor" stroke="none"/></svg></span>
+          <div>
+            <div class="tk"><span class="tn">02</span>You undersell it.</div>
+            <div class="tv">Most pivoters undersell exactly where they should oversell.</div>
+          </div>
+        </div>
+
+        <div class="trap step">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6.5 L9 4 L15 6.5 L21 4 V17.5 L15 20 L9 17.5 L3 20 Z"/>
+              <path d="M9 4 V17.5"/><path d="M15 6.5 V20"/></svg></span>
+          <div>
+            <div class="tk"><span class="tn">03</span>You let AI hand you a roadmap.</div>
+            <div class="tv">A roadmap is not a skill. Use AI to close the gap, not to describe it.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">SNIGDHA · ~3 min · 23:15
+
+The claim is the thesis. Say it, then pause before the traps.
+Three clicks after that, one per trap.
+
+  01 — "Your experience does not map one to one. That is not the same
+        as it not counting. It transfers. It just arrives in the
+        wrong language."
+  02 — "Every pivoter I have met undersells. You are so worried about
+        being caught overstating that you understate, and then you
+        lose to someone with less experience and better framing."
+  03 — ★ THE ONE PEOPLE GET WRONG. Use the worked example:
+        "Say you are pivoting into design. You ask AI what a designer
+         needs to know, and it hands you a beautiful list. Design
+         thinking. Core principles. Type, colour, hierarchy. And you
+         screenshot it and you feel productive.
+         That list is a roadmap. A roadmap is not a skill.
+         Knowing what the role demands is not the same as being able
+         to do it. Use AI as a tutor and a collaborator: make it teach
+         you design thinking, critique your work, close the gap. Do
+         not use it to summarise the gap back to you."
+
+→ then show them exactly what reframing looks like. Next slide.</div>
+  </section>
+
+
+  <!-- ═══ 13 · THE TRANSLATION ═════════════════════════════ -->
+  <section class="slide" data-label="The translation">
+    <div class="eyebrow">What will it feel like? <span class="sep">-</span> Challenge 1</div>
+    <h2>Same work. <span class="em">Different language.</span></h2>
+
+    <div class="trans">
+      <div class="tcol step">
+        <div class="who">Pooja</div>
+        <div class="band">
+          <div class="bk">Engineering resume</div>
+          <div class="bv">Developed and deployed functionality to enable clients to access data from
+            2G Cells topology files, streamlining data access and processing.</div>
+        </div>
+        <div class="turn"><span class="ar">↓</span><span>Same project. Reframed.</span></div>
+        <div class="band win">
+          <div class="bk">Product resume</div>
+          <div class="bv">Revamped data processing pipelines for faster integration, delivering a 30%
+            product performance boost with 15% less resource use.</div>
+        </div>
+      </div>
+
+      <div class="tcol step">
+        <div class="who">Snigdha</div>
+        <div class="band">
+          <div class="bk">Engineering resume</div>
+          <div class="bv">Implemented code in Java for adding a new subscription tier, master keys,
+            and streaming URLs to expand music catalog.</div>
+        </div>
+        <div class="turn"><span class="ar">↓</span><span>Same project. Reframed.</span></div>
+        <div class="band win">
+          <div class="bk">Product resume</div>
+          <div class="bv">Expanded music catalog from 2MM to 100MM songs for Amazon Music Prime
+            subscribers.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">BOTH · ~4 min · 26:15   ★ MOST PHOTOGRAPHED SLIDE
+⬛ POOJA'S EXAMPLE IS A PLACEHOLDER. Fill it before the deck is final.
+
+Two clicks, one column each. POOJA first, then SNIGDHA. Do not rush
+this, it is the most useful thing in Part Two.
+
+  CLICK 1 - Pooja. Read the engineering line out loud, deadpan. Let
+            the room hear how flat it lands: all input, no outcome.
+            Then read the product line. Stop talking for a beat.
+  CLICK 2 - Snigdha. Same shape, different project, so the room sees
+            it is a method and not one lucky rewrite.
+
+★ Two examples is the whole reason this slide works. One example
+looks like a trick. Two looks like a technique.
+
+★ THE POINT, said explicitly:
+  "Nothing was invented. No new experience was added. The engineering
+   version describes what I typed. The product version describes what
+   changed for the user. That is the whole translation: stop writing
+   the input, start writing the outcome."
+
+★ Then give them the homework:
+  "Take one line off your resume tonight. Find the number it moved,
+   and the user it moved for. If you cannot find either, that is not
+   a writing problem, that is your next project."
+
+⬛ WORKSHEET should carry a blank version of this: two boxes, one for
+what you called it, one for what the role calls it.</div>
+  </section>
+
+  <!-- ═══ 14 · CHALLENGE 2 ═════════════════════════════════ -->
+  <section class="slide" data-label="Challenge 2">
+    <div class="eyebrow">What will it feel like? <span class="sep">-</span> Challenge 2</div>
+    <h2>Job market brutality &amp; hiring dysfunction</h2>
+    <div class="cbody">
+      <div class="claim">The market is broken.<br><b>Focus on the controllables.</b>
+        <div class="claimsub">You cannot fix hiring. You can fix what you take away from
+          every no.</div>
+      </div>
+
+      <div class="traps">
+        <div class="trap step">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.3 15.3 L21 21"/></svg></span>
+          <div>
+            <div class="tk"><span class="tn">01</span>You don't audit your failures.</div>
+            <div class="tv">Find the leak: resume, interview prep, confidence. Do an RCA and course correct.</div>
+          </div>
+        </div>
+
+        <div class="trap step">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2.6 L20 5.8 V12 c0 5 -3.4 8.4 -8 9.6 C7.4 20.4 4 17 4 12 V5.8 Z"/>
+              <path d="M8.6 12.2 L11 14.6 L15.6 10"/></svg></span>
+          <div>
+            <div class="tk"><span class="tn">02</span>You can't manage your rejections.</div>
+            <div class="tv">Acknowledge the failure.<br>Use grit and resilience to stay motivated.</div>
+          </div>
+        </div>
+
+        <div class="trap step">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 19 C5 19 5.6 5.5 9.5 5.5 C13.2 5.5 12.6 15.4 15.2 16.2
+                       C17.6 17 19.2 13.6 22 13.6"/></svg></span>
+          <div>
+            <div class="tk"><span class="tn">03</span>You bet your pivot on a trend.</div>
+            <div class="tv">Some roles might die sooner. Map how the role will evolve with time and changing technologies.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">SNIGDHA · ~4 min · 29:15
+
+Same shape as Challenge 1 on purpose. These are siblings, and the
+room should recognise the pattern by now: claim first, then the three
+places people fail.
+
+Say the claim and let it sit. It earns you honesty credit:
+  "The market IS broken. Nothing we say next is going to fix that.
+   So stop spending energy on the part you do not control, and spend
+   it on the part you do."
+
+Three clicks.
+
+  01 AUDIT YOUR FAILURES. Give them the shape, or the advice is empty:
+     "After every rejection, write ONE line. Was it STORY, SKILL, or
+      SIGNAL? That is your root cause. Then course correct on that one
+      thing, not on everything at once."
+     (The three buckets get their own slide next.)
+
+  02 MANAGE YOUR REJECTIONS. ★ THIS IS THE PSYCHOLOGICAL ONE, and it
+     is the reason half this room will quit before they get there.
+     "Take the lesson, not the verdict. A no is information about one
+      process on one day. It is not a ruling on whether you belong.
+      Acknowledge it, pull the one lesson out of it, and move.
+      Then the harder half: decide what you actually deserve, and
+      refuse to settle below it. Most people do not fail the pivot.
+      They accept something smaller because they got tired."
+     ★ Drop your real number here. Out of 30 interviews, how many were
+     nos. Then say what kept you going. That is the most human moment
+     in your fifteen minutes, and it is the one they will remember.
+
+  03 DO NOT BET ON A TREND.
+     "Do not just ask whether the role is hiring today. Ask where it
+      goes. Is there a ladder above it? How does it change as the
+      technology changes? A role with no five year story is a job,
+      not a career."
+     (The four tests for this are on the next slide.)</div>
+  </section>
+
+  <!-- ═══ 15 · HOW TO FIX IT ═════════════════════════════ -->
+  <section class="slide" data-label="How to fix it">
+    <div class="eyebrow">What will it feel like? <span class="sep">-</span> Challenge 2</div>
+    <h2>Analyze the rejection. <span class="em">Fix the right thing.</span></h2>
+
+    <div class="fixbody">
+      <div class="cards">
+        <div class="card step">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.5 11.8 c0 4.1 -3.8 7.4 -8.5 7.4 a10 10 0 0 1 -3.4 -.6 L3.5 20.5
+                     l1.5 -3.9 a6.9 6.9 0 0 1 -1.5 -4.8 c0 -4.1 3.8 -7.4 8.5 -7.4
+                     s8.5 3.3 8.5 7.4 z"/></svg></span>
+          <div class="ck">Story</div>
+          <div class="cm">If they did not understand your journey...</div>
+          <div class="cf">Rewrite your story.</div>
+        </div>
+        <div class="card step">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3.4"/></svg></span>
+          <div class="ck">Skill</div>
+          <div class="cm">If they did not acknowledge your expertise...</div>
+          <div class="cf">Go build the evidence.</div>
+        </div>
+        <div class="card step">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20.5 V12"/><path d="M8.2 12 a5.4 5.4 0 0 1 7.6 0"/>
+            <path d="M5 8.6 a10.2 10.2 0 0 1 14 0"/></svg></span>
+          <div class="ck">Signal</div>
+          <div class="cm">If they did not see you...</div>
+          <div class="cf">Get visible.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notes">SNIGDHA · ~4 min · 31:00
+
+Three clicks, one card each. Set it up before the first click:
+  "After every rejection, write ONE line in your notes. Not a journal
+   entry. One line, answering one question: which of these three
+   was it?"
+
+  STORY  - "They understood what you have done. They did not
+            understand the journey, why it adds up to you doing this
+            job. That is a narrative problem. You fix it by rewriting
+            the story, not by learning anything new."
+  SKILL  - "They did not acknowledge your expertise, because you had
+            nothing to point at. That is the easiest one, because it
+            is the only one with an obvious fix. Go build the evidence."
+  SIGNAL - "You were never in the room. Nobody read it, nobody
+            forwarded it. No amount of rewriting fixes this."
+
+★ THE PAYOFF LINE, after all three land:
+  "Without these three buckets, thirty rejections teach you nothing
+   except that it hurts. With them, thirty rejections is a diagnosis."
+
+★ ALSO SAY THE ENDURANCE RULE HERE. It has no slide, so it has to
+come from you, and it is what stops people thrashing:
+  "One rejection tells you nothing. Ten tell you everything. Change
+   nothing after a single no. Change something the moment the same
+   no shows up three times."
+  Drop your real number: out of 30 interviews, how many were nos,
+  what pattern you eventually spotted, and what you changed.
+
+★ THE FAD TESTS ALSO HAVE NO SLIDE ANY MORE. They belong to trap 03
+on the previous slide. If you have time, say them fast:
+  "Does the role exist at companies that are not chasing hype?
+   Is there a ladder above it, or does it dead end?
+   Will the skill survive if the role disappeared?
+   And the one that matters in 2026: is it a job title, or is it
+   becoming part of every job?"
+  That last one has a real edge on it. Some of the room will
+  disagree, which is exactly why they will remember it.
+
+→ This closes Challenge 2. Next: Challenge 3.</div>
+  </section>
+
+  <!-- ═══ 16 · CHALLENGE 3 ═════════════════════════════════ -->
+  <section class="slide" data-label="Challenge 3">
+    <div class="eyebrow">What will it feel like? <span class="sep">-</span> Challenge 3</div>
+    <h2>Being delulu is not always<br>the solulu in the AI world</h2>
+    <div class="subhead">Stop consuming AI without creating. <b style="color:var(--accent);font-weight:700">Every build is a win.</b></div>
+
+    <div class="stairs">
+      <div class="stair s1 step">
+        <div class="sk">Build failed</div>
+        <div class="sv">You learned something.</div>
+      </div>
+      <div class="stair s2 step">
+        <div class="sk">Build good</div>
+        <div class="sv">You solved a problem for yourself.</div>
+      </div>
+      <div class="stair s3 step">
+        <div class="sk">Build great</div>
+        <div class="sv">You solved a problem for everyone.</div>
+      </div>
+    </div>
+
+    <div class="mindset step">Try → Iterate → Repeat</div>
+
+    <div class="notes">SNIGDHA · ~4 min · 35:00
+
+Four clicks: three bars, then the mindset line.
+
+★ OPEN WITH THE DIAGNOSIS, before you click anything. Name multi-tab
+syndrome and let the room recognise itself:
+  "Be honest. How many tabs of AI content do you have open right now?
+   The newsletter, the thread, the course you bought, the model you
+   have been meaning to try. That is consuming. None of it counts.
+   Being delulu is not always the solulu."
+
+Then the bars, one at a time. The point is that the staircase only
+goes UP. There is no losing outcome.
+
+  BUILD FAILED - "It broke. Nobody used it. And you still came out
+                  ahead, because now you know something you could not
+                  have read your way into."
+  BUILD GOOD   - "It worked, for you. That is a real thing. You had a
+                  problem and you solved it yourself."
+  BUILD GREAT  - "It worked for other people. That is the one that
+                  changes your career, and you cannot start here.
+                  You get here by shipping the first two."
+
+★ THE LINE THAT MAKES THE SLIDE:
+  "Every one of these is a win. The only losing move is the one that
+   is not on this chart, which is not building at all."
+
+★ BUILD FOR THE RIGHT PAIN POINT. Say this before the mindset line,
+it is the guardrail:
+  "One condition. Build for a real pain point, ideally your own. An
+   app nobody asked for is not on this staircase either."
+
+CLICK 4 - Try, iterate, repeat. Land it and move.</div>
+  </section>
+
+
+  <!-- ═══ 17 · BONUS: VISIBILITY ═══════════════════════ -->
+  <section class="slide" data-label="Visibility">
+    <div class="eyebrow">What will it feel like? <span class="sep">-</span> Bonus</div>
+    <h2>Visibility is non-negotiable. <span class="em">Approach can vary.</span></h2>
+
+    <div class="povs">
+      <div class="pov step">
+        <span class="fig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="7.5" cy="7" r="3.1"/>
+          <path d="M2 20.5 c0 -3 2.5 -5.5 5.5 -5.5 s5.5 2.5 5.5 5.5"/>
+          <circle cx="17.5" cy="8.6" r="2.5"/>
+          <path d="M13.4 20.5 c0 -2.4 1.9 -4.4 4.1 -4.4 s4.1 2 4.1 4.4"/></svg></span>
+        <div>
+          <div class="pk">Introvert</div>
+          <ul>
+            <li>More 1:1 than group gatherings.</li>
+            <li>If you don't speak much, ask questions and learn by listening.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pov step">
+        <span class="fig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <circle cx="12" cy="3.6" r="1.7"/><circle cx="19.8" cy="8.6" r="1.7"/>
+          <circle cx="16.9" cy="19.6" r="1.7"/><circle cx="7.1" cy="19.6" r="1.7"/>
+          <circle cx="4.2" cy="8.6" r="1.7"/>
+          <path d="M12 9 V5.3 M14.7 10.5 L18.2 9.4 M13.7 14.7 L16.1 18.1
+                   M10.3 14.7 L7.9 18.1 M9.3 10.5 L5.8 9.4"/></svg></span>
+        <div>
+          <div class="pk">Extrovert</div>
+          <ul>
+            <li>Lead the groups and discussions.</li>
+            <li>Become the central node of the network.</li>
+            <li>Share and publish your experiences with people.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="vcards step">
+      <div class="vcard"><div class="vk">Give before you take.</div>
+        <div class="vv">Networking is a long-term game.</div></div>
+      <div class="vcard"><div class="vk">Strategic confidence.</div>
+        <div class="vv">Filter the right people, then approach with confidence.</div></div>
+      <div class="vcard"><div class="vk">Present your best self.</div>
+        <div class="vv">People love to work with genuine people.</div></div>
+      <div class="vcard"><div class="vk">Leverage your community.</div>
+        <div class="vv">Alumni, shared backgrounds, this room.</div></div>
+    </div>
+
+    <div class="notes">BOTH · ~3 min · 39:00   ★ YOUR BEST TWO-VOICE MOMENT
+
+Three clicks: the two profiles, then the four rules.
+
+The title is the whole argument. Visibility is not optional, but the
+METHOD is yours to choose. Nobody has to become someone else.
+
+★ ACTUALLY DISAGREE WITH EACH OTHER, OUT LOUD. Whoever is more
+introverted takes the left panel and means it. Co-speakers openly
+disagreeing is the most engaging thing that can happen on a stage and
+almost nobody does it. Thirty seconds each, then converge:
+  "We do this completely differently and we end up in the same place.
+   The room is not the network. The follow-up is."
+
+★ FOR THE INTROVERTS, say this. It is the most reassuring line in
+Part Two:
+  "If you do not speak much, that is not a disadvantage. Ask the
+   questions nobody else is asking, and listen harder than the people
+   waiting for their turn to talk. People remember being listened to."
+
+On the four rules, the two worth slowing down for:
+  STRATEGIC CONFIDENCE - "Confidence can be borrowed. You are allowed
+     to fake it on the way to a conversation you have earned. That is
+     not dishonesty, that is just walking in."
+  LEVERAGE YOUR COMMUNITY - "You do not start from zero. Alumni,
+     people who took the same road, and the person sitting next to
+     you right now. Turn to them after this session."
+
+★ CLOSE BY POINTING AT THE ROOM. It is GHC. Everyone here is already
+in your network and most of them do not know it yet.</div>
+  </section>
+
+
+  <!-- ═══ 18 · PART THREE DIVIDER ══════════════════════════ -->
+  <section class="slide t-divider dark" data-label="Section">
+    <div class="eyebrow">Part Three</div>
+    <h1>How do you build credibility for your pivot role?</h1>
+    <div class="lede">The <b>BRICK</b> framework.</div>
+
+    <div class="notes">SNIGDHA · ~15 sec · 42:00
+
+This is the part the room stayed for. Say so:
+  "Everything until now was whether to do it and what it feels like.
+   This is how you actually get hired into a role you have never
+   held. This is the part you write down."</div>
+  </section>
+
+
+  <!-- ═══ 19 · THE BRICK WALL ══════════════════════════════ -->
+  <section class="slide" data-label="BRICK">
+    <div class="eyebrow">Part Three <span class="sep">-</span> The framework</div>
+    <h2>Five courses. In order. <span class="em">You can't skip one.</span></h2>
+
+    <div class="wall">
+      <div class="course step" style="--bk:#8E2438">
+        <div class="brick" style="background-color:var(--bk)">
+          <span class="bl">B</span><span class="bn">Base Knowledge</span>
+          <span class="bd">What you already have, named in their language.</span>
+        </div>
+        <div class="stub" style="background-color:var(--bk)"></div>
+      </div>
+
+      <div class="course step" style="--bk:#962C3D">
+        <div class="stub" style="background-color:var(--bk)"></div>
+        <div class="brick" style="background-color:var(--bk)">
+          <span class="bl">R</span><span class="bn">Run Simulation</span>
+          <span class="bd">A small, intentional project with one real user.</span>
+        </div>
+      </div>
+
+      <div class="course step" style="--bk:#872131">
+        <div class="brick" style="background-color:var(--bk)">
+          <span class="bl">I</span><span class="bn">Implement Execution</span>
+          <span class="bd">Go where it is messy and the decisions are real.</span>
+        </div>
+        <div class="stub" style="background-color:var(--bk)"></div>
+      </div>
+
+      <div class="course step" style="--bk:#92283A">
+        <div class="stub" style="background-color:var(--bk)"></div>
+        <div class="brick" style="background-color:var(--bk)">
+          <span class="bl">C</span><span class="bn">Claim Ownership</span>
+          <span class="bd">Decisions you owned, not titles you held.</span>
+        </div>
+      </div>
+
+      <div class="course step" style="--bk:#8A2434">
+        <div class="brick" style="background-color:var(--bk)">
+          <span class="bl">K</span><span class="bn">Key Impact</span>
+          <span class="bd">What changed because of you. Before, and after.</span>
+        </div>
+        <div class="stub" style="background-color:var(--bk)"></div>
+      </div>
+    </div>
+
+    <div class="notes">SNIGDHA · ~4 min · 42:15   ★ THE FRAMEWORK
+
+Five clicks. The wall builds course by course, top to bottom, and it
+spells BRICK as it goes.
+
+Roughly 30 seconds per course. Do NOT give each letter a minute, you
+do not have it, and the worked example on the next slide is what makes
+it stick.
+
+  B - the warmest one. This is where their self-doubt lives.
+      Callback: "we did this on the resume slide."
+  R - say the anti-pattern out loud, it is the most useful 15 seconds
+      in Part Three: "random apps with no users, no metrics, no
+      documented decisions. Those do not count. Half of you have a
+      portfolio of exactly that and nobody has told you."
+  I - counterintuitive: seek the MESSY project. Clean projects have
+      no decisions in them, and decisions are the whole point.
+  C - "Nobody is going to give you the title first. You claim the
+      decision, then the title follows."
+  K - handle the objection before they raise it: "what if I have no
+      numbers?" - "took 3 days, now takes 3 hours" IS a metric.
+
+★ THE CLOSING LINE, after all five are up:
+  "You build up. Impact without ownership is a resume lie, and hiring
+   managers can smell it. Each course only holds if the one under it
+   is real."</div>
+  </section>
+
+  <div id="pgnum"></div>
+</div>
+
+<div id="grid" role="dialog" aria-label="All slides"></div>
+<div id="np" aria-live="polite"><h4>Presenter notes</h4><div id="npbody"></div></div>
+<div id="distlabel">Distance check at 30%. Roughly the back row.</div>
+<div id="help">
+  <b>→ ␣</b> next &nbsp; <b>←</b> back<br>
+  <b>F</b> fullscreen &nbsp; <b>P</b> notes<br>
+  <b>O</b> all slides &nbsp; <b>D</b> distance<br>
+  <b>H</b> hide
+</div>
+
+<script>
+(function(){
+  var slides = [].slice.call(document.querySelectorAll('.slide'));
+  var i = 0, step = 0;
+  var grid = document.getElementById('grid');
+  var np   = document.getElementById('np');
+  var help = document.getElementById('help');
+  var pgnum = document.getElementById('pgnum');
+
+  function steps(s){ return [].slice.call(s.querySelectorAll('.step')); }
+
+  function render(){
+    slides.forEach(function(s, n){
+      s.classList.toggle('on', n === i);
+      if (n !== i) steps(s).forEach(function(e){ e.classList.remove('in'); });
+    });
+    var cur = slides[i];
+    steps(cur).forEach(function(e, n){ e.classList.toggle('in', n < step); });
+
+    // no number on the title slide
+    pgnum.classList.toggle('hide', i === 0);
+    pgnum.textContent = String(i + 1).padStart(2, '0') + ' / ' + String(slides.length).padStart(2, '0');
+    // divider slides invert the ground, so the number has to invert too
+    document.body.classList.toggle('on-dark', cur.classList.contains('dark'));
+
+    var nt = cur.querySelector('.notes');
+    document.getElementById('npbody').textContent = nt ? nt.textContent.trim() : '';
+  }
+
+  function next(){
+    if (step < steps(slides[i]).length) step++;
+    else if (i < slides.length - 1){ i++; step = 0; }
+    render();
+  }
+  function prev(){
+    if (step > 0) step--;
+    else if (i > 0){ i--; step = steps(slides[i]).length; }
+    render();
+  }
+  function go(n){ i = Math.max(0, Math.min(slides.length - 1, n)); step = steps(slides[i]).length; render(); }
+
+  function buildGrid(){
+    grid.innerHTML = '';
+    slides.forEach(function(s, n){
+      var h = s.querySelector('h1,h2,.statement');
+      var b = document.createElement('button');
+      b.innerHTML = '<span>' + String(n + 1).padStart(2, '0') + '</span>' +
+                    '<b>' + (h ? h.textContent.trim() : '') + '</b>' +
+                    '<span>' + (s.dataset.label || '') + '</span>';
+      b.onclick = function(){ go(n); grid.classList.remove('on'); };
+      grid.appendChild(b);
+    });
+  }
+
+  document.addEventListener('keydown', function(e){
+    var k = e.key.toLowerCase();
+    if (grid.classList.contains('on')){
+      if (k === 'escape' || k === 'o'){ grid.classList.remove('on'); e.preventDefault(); }
+      return;
+    }
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown'){ next(); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp'){ prev(); e.preventDefault(); }
+    else if (k === 'f'){
+      if (document.fullscreenElement) document.exitFullscreen();
+      else document.documentElement.requestFullscreen();
+    }
+    else if (k === 'p'){ np.classList.toggle('on'); }
+    else if (k === 'o'){ buildGrid(); grid.classList.add('on'); }
+    else if (k === 'd'){ document.body.classList.toggle('dist'); }
+    else if (k === 'h'){ help.classList.toggle('hide'); }
+  });
+
+  document.getElementById('stage').addEventListener('click', function(e){
+    if (e.clientX < window.innerWidth * 0.22) prev(); else next();
+  });
+
+  setTimeout(function(){ help.classList.add('hide'); }, 8000);
+
+  // Deep link: index.html#14 opens slide 14 fully revealed. Useful for
+  // sending a reviewer straight to one slide, and for screenshotting.
+  function fromHash(){
+    var n = parseInt((location.hash || '').replace('#', ''), 10);
+    if (n >= 1 && n <= slides.length){ i = n - 1; step = steps(slides[i]).length; }
+  }
+  window.addEventListener('hashchange', function(){ fromHash(); render(); });
+  fromHash();
+  render();
+})();
+</script>
+</body>
+</html>
