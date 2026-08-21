@@ -1,0 +1,13 @@
+# Ignore everything by default, then allow only the site files
+*
+!.gitignore
+!README.md
+!index.html
+!assets/
+assets/*
+!assets/paypal_icon.png
+!assets/uber_icon.png
+!assets/snigdha_headshot.jpg
+!assets/snigdha_linkedin_qr.png
+!assets/snigdha_instagram_qr.png
+!assets/1pct_better_pm.png
